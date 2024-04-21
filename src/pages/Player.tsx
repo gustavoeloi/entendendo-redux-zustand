@@ -3,28 +3,32 @@ import { MessageCircle } from "lucide-react";
 import { Header } from "../components/Header";
 import { Video } from "../components/Video";
 import { Module } from "../components/Module";
-import { AppDispatch, useAppSelector } from "../store";
-import { useCurrentLesson } from "../store/slices/player";
 import { useEffect } from "react";
-import { api } from "../lib/axio";
-import { useDispatch } from "react-redux";
-import { start } from "../store/slices/player";
-import { loadCourses } from "../store/services/player";
+import { useCurrentLesson, useStore } from "../zustand-store";
+
+// import { start } from "../store/slices/player";
+// import { useCurrentLesson } from "../store/slices/player";
+// import { useDispatch } from "react-redux";
+// import { AppDispatch, useAppSelector } from "../store";
+// import { loadCourses } from "../store/services/player";
 
 export function Player() {
-  const modules = useAppSelector((state) => state.player.course?.modules);
+  const { course, load } = useStore((store) => {
+    return {
+      course: store.course,
+      load: store.load,
+    };
+  });
 
   const { currentLesson } = useCurrentLesson();
 
-  const dispatch = useDispatch<AppDispatch>();
-
   useEffect(() => {
-    dispatch(loadCourses());
+    load();
   }, []);
 
   useEffect(() => {
     if (currentLesson) {
-      document.title = `Assistindo: ${currentLesson?.title}`;
+      document.title = `Assistindo ${currentLesson.title}`;
     }
   }, [currentLesson]);
 
@@ -46,8 +50,8 @@ export function Player() {
           </div>
 
           <aside className=" absolute top-0 bottom-0 right-0 w-80 border-l border-zinc-800 bg-zinc-900 overflow-y-scroll scrollbar-thin scrollbar-track-zinc-950 scrollbar-thumb-zinc-800 divide-y-2 divide-zinc-900">
-            {modules &&
-              modules.map((module, index) => {
+            {course?.modules &&
+              course.modules.map((module, index) => {
                 return (
                   <Module
                     key={module.id}

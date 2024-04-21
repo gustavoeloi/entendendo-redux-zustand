@@ -1,24 +1,29 @@
 import ReactPlayer from "react-player";
 
-import { useDispatch } from "react-redux";
-import { next, useCurrentLesson } from "../store/slices/player";
-import { AppDispatch, useAppSelector } from "../store";
 import { Loader } from "lucide-react";
+import { useCurrentLesson, useStore } from "../zustand-store";
 
 export function Video() {
   const { currentLesson } = useCurrentLesson();
 
-  const isCourseLoading = useAppSelector((state) => state.player.isLoading);
-
-  const dispatch = useDispatch<AppDispatch>();
+  const { next, isLoading } = useStore((store) => {
+    return {
+      next: store.next,
+      isLoading: store.isLoading,
+    };
+  });
 
   if (!currentLesson) {
     return null;
   }
 
+  function handlePlayNext() {
+    next();
+  }
+
   return (
     <div className="w-full bg-zinc-950 aspect-video">
-      {isCourseLoading ? (
+      {isLoading ? (
         <div className="flex h-full items-center justify-center">
           <Loader className="w-6 h-6 text-zinc-400 animate-spin" />
         </div>
@@ -28,7 +33,7 @@ export function Video() {
           height="100%"
           controls
           playing={true}
-          onEnded={() => dispatch(next())}
+          onEnded={handlePlayNext}
           url={`https://www.youtube.com/watch?v=${currentLesson.id}`}
         />
       )}
