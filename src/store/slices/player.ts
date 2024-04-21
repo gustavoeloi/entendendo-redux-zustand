@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { useAppSelector } from "..";
+import { loadCourses } from "../services/player";
 
 interface Course {
   id: number;
@@ -18,12 +19,14 @@ export interface PlayerState {
   course: Course | null;
   currentModuleIndex: number;
   currentLessonIndex: number;
+  isLoading: boolean;
 }
 
 const initialState: PlayerState = {
   course: null,
   currentLessonIndex: 0,
   currentModuleIndex: 0,
+  isLoading: false,
 };
 
 export const playerSlice = createSlice({
@@ -59,6 +62,16 @@ export const playerSlice = createSlice({
         state.currentLessonIndex = 0;
       }
     },
+  },
+  extraReducers(builder) {
+    builder.addCase(loadCourses.pending, (state, action) => {
+      state.isLoading = true;
+    });
+
+    builder.addCase(loadCourses.fulfilled, (state, action) => {
+      state.course = action.payload;
+      state.isLoading = false;
+    });
   },
 });
 
